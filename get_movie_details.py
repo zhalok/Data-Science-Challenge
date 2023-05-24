@@ -82,12 +82,12 @@ def get_movie(url):
 
 def get_movies():
     movie_links = scrap_list(
-        url="https://www.imdb.com/search/title/?genres=Action&explore=title_type%2Cgenres&ref_=ft_popular_0")
+        url="https://www.imdb.com/chart/top")
     # print("hello")
 
     movie_data = get_existing_data(os.path.join("datasets", "movies.json"))
     # print(movie_data)
-    for movie_link in movie_links[0:1]:
+    for movie_link in movie_links:
         data = get_movie(movie_link)
         movie_data.append(data)
         print("Data scrapped", len(movie_data))
