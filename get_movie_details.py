@@ -3,6 +3,37 @@ from bs4 import BeautifulSoup
 import os
 from scrap_list import scrap_list
 import pandas as pd
+import json
+
+
+def get_existing_data(file_path):
+
+    # file_path = "data.json"
+    data = []
+
+    try:
+        # Attempt to open the file for reading
+        with open(file_path, "r") as file:
+            try:
+                # Parse the JSON content from the file
+                data = json.load(file)
+                print("Successfully parsed JSON from the file.")
+
+            except json.JSONDecodeError:
+                # If there is a parsing error, create an empty JSON array
+                data = []
+                print("Parsing error. Created an empty JSON array.")
+
+    except FileNotFoundError:
+        # If the file doesn't exist, create it and initialize with an empty JSON array
+        data = []
+        with open(file_path, "w") as file:
+            file.write("[]")
+            print("File created. Initialized with an empty JSON array.")
+    return data
+
+    # Perform operations on the parsed JSON data here
+    # ...
 
 
 def get_movie(url):
@@ -50,18 +81,21 @@ def get_movie(url):
 
 
 def get_movies():
-    movie_links = scrap_list()
+    movie_links = scrap_list(
+        url="https://www.imdb.com/search/title/?genres=Action&explore=title_type%2Cgenres&ref_=ft_popular_0")
+    # print("hello")
 
-    movie_data = []
-    for movie_link in movie_links:
-        data = get_movie("https://www.imdb.com" + movie_link)
+    movie_data = get_existing_data(os.path.join("datasets", "movies.json"))
+    # print(movie_data)
+    for movie_link in movie_links[0:1]:
+        data = get_movie(movie_link)
         movie_data.append(data)
         print("Data scrapped", len(movie_data))
     # print(movie_data)
     dataframe = pd.DataFrame(movie_data)
     dataframe.to_json(os.path.join(
         "datasets", "movies.json"), orient='records')
-    # dataframe.to_csv("movies.csv", index=False)
+    dataframe.to_csv("movies.csv", index=False)
 
 
 get_movies()
